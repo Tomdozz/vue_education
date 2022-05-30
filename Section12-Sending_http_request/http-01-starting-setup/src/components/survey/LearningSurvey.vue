@@ -55,10 +55,21 @@ export default {
       }
       this.invalidInput = false;
 
-      this.$emit('survey-submit', {
+     /* this.$emit('survey-submit', {
         userName: this.enteredName,
         rating: this.chosenRating,
-      });
+      });*/
+
+      fetch('https://http-demo-355c1-default-rtdb.europe-west1.firebasedatabase.app/surveys.json', {
+        method:'POST',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: this.enteredName,
+          rating: this.chosenRating
+        })
+      })
 
       this.enteredName = '';
       this.chosenRating = null;

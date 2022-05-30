@@ -3,9 +3,12 @@
     <base-card>
       <h2>Submitted Experiences</h2>
       <div>
-        <base-button>Load Submitted Experiences</base-button>
+        <base-button @click="loadEx">Load Submitted Experiences</base-button>
       </div>
-      <ul>
+      <p v-if="isLoading">loading</p>
+      <p v-else-if="!isLoading && error">{{ error }}</p>
+      <p v-else-if="!isLoading && (!results || results.length === 0)">No data</p>
+      <ul v-else-if="!isLoading && results.length > 0">
         <survey-result
           v-for="result in results"
           :key="result.id"
@@ -21,9 +24,44 @@
 import SurveyResult from './SurveyResult.vue';
 
 export default {
-  props: ['results'],
   components: {
     SurveyResult,
+  },
+  data() {
+    return {
+      results: [],
+      isLoading: false,
+      error: null
+    }
+  },
+  mounted() {
+    this.loadEx();
+  },
+  methods: {
+    loadEx(){
+      this.isLoading = true;
+      this.error = null;
+
+       fetch('https://http-demo-355c1-default-rtdb.europe-west1.firebasedatabase.app/surveys.json').then((response) =>{
+         if(response.ok){
+           return response.json();
+         }
+       }).then((d) => { 
+        this.isLoading = false;
+         const results = [];
+         for(const id in d){
+           results.push({
+             id: id,
+             name: d[id].name,
+             rating: d[id].rating
+            })
+         }
+         this.results = results;
+      }).catch((error) =>{
+        this.isLoading = false;
+        this.error = 'Failed to get data' + error;
+      });
+    }
   },
 };
 </script>
